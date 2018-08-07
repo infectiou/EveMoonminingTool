@@ -2,13 +2,10 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 
-@{
-    ViewData["Title"] = "Welcome";
-}
-
 <h2>Moonmining Parser</h2>
 
-<h4>Put Mining Data here:</h4>
+<h4>@ViewData["Message"]</h4>
+
 <hr />
 <form asp-controller="MoonMining" asp-action="Parse">
     <p>
@@ -20,5 +17,5 @@
 </form>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-controller="MiningJobs" asp-action="Index">Or go to Database</a>
 </div>

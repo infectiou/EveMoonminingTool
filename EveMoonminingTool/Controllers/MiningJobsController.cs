@@ -62,7 +62,7 @@ namespace EveMoonminingTool.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(miningJob);
-        }
+        }     
 
         // GET: MiningJobs/Edit/5
         public async Task<IActionResult> Edit(int? id)

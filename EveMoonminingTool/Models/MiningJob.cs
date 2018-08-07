@@ -34,7 +34,12 @@ namespace EveMoonminingTool.Models
         public int OreID { get; set; }
         public int SystemID { get; set; }
 
-        public MiningJob (String[] werte)
+        public MiningJob()
+        {
+
+        }
+
+            public MiningJob (String[] werte)
         {
             
             // This constructor is for generating a Mining job Objects from the Strings that are parsed from the initialy posted text

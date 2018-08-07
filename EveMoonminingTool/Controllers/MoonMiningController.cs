@@ -20,13 +20,18 @@ namespace EveMoonminingTool.Controllers
         }
 
         // GET: /<controller>/
-        public IActionResult Index(string name, int numTimes = 1)
+        public IActionResult Index(string message = "Please put the Mining Data into the field below")
         {
-            ViewData["Message"] = "Hello " + name;
-            ViewData["NumTimes"] = numTimes;
+            ViewData["Message"] = message;            
 
             return View();
-        }        
+        }
+
+        // GET: /<controller>/
+        public IActionResult Test()
+        {
+            return RedirectToAction("Index", "MoonMining", new { message = "Dinkleberg!" });
+        }
 
         public IActionResult Parse(string data)
         {
@@ -99,6 +104,22 @@ namespace EveMoonminingTool.Controllers
             ViewData["ListLenght"] = JobCollection.Count();
 
             return View(JobCollection);
+        }
+
+        // POST: MoonMining/AddToDatabase
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddToDatabase(List<MiningJob> JobCollection)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.AddRange(JobCollection);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index", "MiningJobs");
+            }
+            return RedirectToAction("Index", "MoonMining", new { message = "There seem to have been an Error. The Data couldn't be written to the database" });
         }
     }
 }
