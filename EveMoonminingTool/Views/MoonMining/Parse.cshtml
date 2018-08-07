@@ -1,0 +1,123 @@
+﻿@{
+    ViewData["Title"] = "Welcome";
+}
+
+@model IEnumerable<EveMoonminingTool.Models.MiningJob>
+
+<h2>Moonmining Parser</h2>
+
+
+<p>@ViewData["Message"]</p>
+
+<ul>
+    @for (int i = 0; i < (int)ViewData["LineCount"] - 1; i++)
+    {
+        @for (int j = 0; j < 9; j++)
+        {
+            <li> @ViewData["Line" + i + ";" + j]</li>
+        }
+    }
+</ul>
+
+@*<h2>Daten aus dem Model:</h2>
+
+    <ul>
+        @for (int i = 0; i < (int)ViewData["ListLenght"]; i++)
+        {
+
+            <li>Eintrag</li>
+            <li> Tag: @ViewData["Modeltest" + i + ";1"]</li>
+            <li> Pilot: @ViewData["Modeltest" + i + ";2"]</li>
+            <li> Erz: @ViewData["Modeltest" + i + ";3"]</li>
+            <li> Menge: @ViewData["Modeltest" + i + ";4"]</li>
+        }
+    </ul>*@
+
+@if ((int)ViewData["ErrorCount"] > 1)
+{
+<p>@ViewData["ErrorMessage"]</p>
+
+<ul>
+    @foreach (int errorline in (List<int>)ViewData["ErrorList"])
+    {
+        @for (int j = 0; j < (int)ViewData["EntryCount" + errorline]; j++)
+        {
+            <li>@ViewData["Line" + errorline + ";" + j]</li>
+
+        }
+
+    }
+</ul>
+}
+
+
+<h2>Are these the droids you are looking for?:</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Day)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Corp)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Pilot)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OreType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Volumen)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EstimatedValue)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OreID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SystemID)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Day)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Corp)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Pilot)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OreType)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Amount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Volumen)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EstimatedValue)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OreID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SystemID)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

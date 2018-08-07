@@ -1,0 +1,83 @@
+﻿@model IEnumerable<EveMoonminingTool.Models.MiningJob>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Day)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Corp)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Pilot)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OreType)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Amount)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Volumen)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.EstimatedValue)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OreID)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SystemID)
+                </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Day)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Corp)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Pilot)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OreType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Volumen)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EstimatedValue)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OreID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SystemID)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

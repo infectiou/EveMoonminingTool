@@ -1,0 +1,74 @@
+﻿@model EveMoonminingTool.Models.MiningJob
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2>Edit</h2>
+
+<h4>MiningJob</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ID" />
+            <div class="form-group">
+                <label asp-for="Day" class="control-label"></label>
+                <input asp-for="Day" class="form-control" />
+                <span asp-validation-for="Day" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Corp" class="control-label"></label>
+                <input asp-for="Corp" class="form-control" />
+                <span asp-validation-for="Corp" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Pilot" class="control-label"></label>
+                <input asp-for="Pilot" class="form-control" />
+                <span asp-validation-for="Pilot" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OreType" class="control-label"></label>
+                <input asp-for="OreType" class="form-control" />
+                <span asp-validation-for="OreType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Volumen" class="control-label"></label>
+                <input asp-for="Volumen" class="form-control" />
+                <span asp-validation-for="Volumen" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EstimatedValue" class="control-label"></label>
+                <input asp-for="EstimatedValue" class="form-control" />
+                <span asp-validation-for="EstimatedValue" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OreID" class="control-label"></label>
+                <input asp-for="OreID" class="form-control" />
+                <span asp-validation-for="OreID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SystemID" class="control-label"></label>
+                <input asp-for="SystemID" class="form-control" />
+                <span asp-validation-for="SystemID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

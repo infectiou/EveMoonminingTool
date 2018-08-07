@@ -1,0 +1,72 @@
+﻿@model EveMoonminingTool.Models.MiningJob
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>MiningJob</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Day)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Day)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Corp)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Corp)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Pilot)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Pilot)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.OreType)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.OreType)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Amount)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Amount)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Volumen)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Volumen)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.EstimatedValue)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EstimatedValue)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.OreID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.OreID)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SystemID)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SystemID)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.ID">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
