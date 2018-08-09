@@ -14,6 +14,8 @@ namespace EveMoonminingTool.Controllers
     {
         private readonly EveMoonminingToolContext _context;
 
+        private static List<MiningJob> JobCollection = new List<MiningJob>();
+
         public MoonMiningController(EveMoonminingToolContext context)
         {
             _context = context;
@@ -35,12 +37,16 @@ namespace EveMoonminingTool.Controllers
 
         public IActionResult Parse(string data)
         {
-            //initianlizing counters
-            ViewData["LineCount"] = 0;            
+            //initianlizing counters and error handling
+            ViewData["LineCount"] = 0;
+            ViewData["ErrorCount"] = 0;
+            ViewData["ErrorMessage"] = "There were useless data in Lines: ";
+            ViewData["ErrorList"] = new List<int>();
 
             if (data == null | data == "")
-            {                
-                return View();
+            {
+                JobCollection = new List<MiningJob>();
+                return View(JobCollection);
             }
             
             // We split the whole dump into seperate lines and count them,
@@ -62,11 +68,7 @@ namespace EveMoonminingTool.Controllers
 
 
             // Strip each line of the HTML and try to convert the entrys into a Mining Job
-            List<MiningJob> JobCollection = new List<MiningJob>();
-            ViewData["ErrorCount"] = 0;
-            ViewData["ErrorMessage"] = "There were useless data in Lines: ";            
-            ViewData["ErrorList"] = new List<int>();
-
+            JobCollection = new List<MiningJob>();
 
             for (int i = 0; i < entrys.Length; i++)
             {
@@ -101,7 +103,7 @@ namespace EveMoonminingTool.Controllers
                 }
             }
 
-            ViewData["ListLenght"] = JobCollection.Count();
+            ViewData["ListLenght"] = JobCollection.Count();            
 
             return View(JobCollection);
         }
@@ -110,13 +112,14 @@ namespace EveMoonminingTool.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddToDatabase(List<MiningJob> JobCollection)
+        //[ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddtoDatabase()
         {
             if (ModelState.IsValid)
             {
                 _context.AddRange(JobCollection);
                 await _context.SaveChangesAsync();
+                JobCollection = new List<MiningJob>();
                 return RedirectToAction("Index", "MiningJobs");
             }
             return RedirectToAction("Index", "MoonMining", new { message = "There seem to have been an Error. The Data couldn't be written to the database" });

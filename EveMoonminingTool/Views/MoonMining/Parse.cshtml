@@ -4,6 +4,10 @@
 
 @model IEnumerable<EveMoonminingTool.Models.MiningJob>
 
+@{ 
+    var dieliste = Model;
+}
+
 <h2>Moonmining Parser</h2>
 
 
@@ -19,35 +23,22 @@
     }
 </ul>
 
-@*<h2>Daten aus dem Model:</h2>
-
-    <ul>
-        @for (int i = 0; i < (int)ViewData["ListLenght"]; i++)
-        {
-
-            <li>Eintrag</li>
-            <li> Tag: @ViewData["Modeltest" + i + ";1"]</li>
-            <li> Pilot: @ViewData["Modeltest" + i + ";2"]</li>
-            <li> Erz: @ViewData["Modeltest" + i + ";3"]</li>
-            <li> Menge: @ViewData["Modeltest" + i + ";4"]</li>
-        }
-    </ul>*@
 
 @if ((int)ViewData["ErrorCount"] > 1)
 {
-<p>@ViewData["ErrorMessage"]</p>
+    <p>@ViewData["ErrorMessage"]</p>
 
-<ul>
-    @foreach (int errorline in (List<int>)ViewData["ErrorList"])
-    {
-        @for (int j = 0; j < (int)ViewData["EntryCount" + errorline]; j++)
+    <ul>
+        @foreach (int errorline in (List<int>)ViewData["ErrorList"])
         {
-            <li>@ViewData["Line" + errorline + ";" + j]</li>
+            @for (int j = 0; j < (int)ViewData["EntryCount" + errorline]; j++)
+            {
+                <li>@ViewData["Line" + errorline + ";" + j]</li>
+
+            }
 
         }
-
-    }
-</ul>
+    </ul>
 }
 
 
@@ -121,3 +112,11 @@
         }
     </tbody>
 </table>
+
+<form asp-controller="MoonMining" asp-action="AddtoDatabase" method="post">        
+    <button type="submit">OK</button>
+</form>
+
+@*section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} *@
