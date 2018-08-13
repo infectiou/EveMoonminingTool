@@ -22,7 +22,7 @@ namespace EveMoonminingTool.Controllers
         public async Task<IActionResult> Index()
         {
             return View(await _context.MiningJob.ToListAsync());
-        }
+        }        
 
         // GET: MiningJobs/Details/5
         public async Task<IActionResult> Details(int? id)

@@ -11,9 +11,9 @@ namespace EveMoonminingTool.Models
 
         public int ID { get; set; }
 
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        [Display(Name = "Day (yyyy-MM-dd)")]
         [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-mm-dd}", ApplyFormatInEditMode = true)]
+        [Display(Name = "Day (yyyy-mm-dd)")]       
         [Required]
         public DateTime Day { get; set; }
 
@@ -27,9 +27,13 @@ namespace EveMoonminingTool.Models
         public String OreType { get; set; }
 
         [Required]
+        [DisplayFormat(DataFormatString = "{0:N0}")]
         public int Amount { get; set; }
 
+        [DisplayFormat(DataFormatString = "{0:N0}")]
         public float Volumen { get; set; }
+
+        [DisplayFormat(DataFormatString = "{0:N0}")]
         public int EstimatedValue { get; set; }
         public int OreID { get; set; }
         public int SystemID { get; set; }
