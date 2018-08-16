@@ -14,8 +14,8 @@ namespace EveMoonminingTool.Controllers
     {
         private readonly EveMoonminingToolContext _context;
 
-        // We need this List too cache out parsed data, because the list can not be transferred back to the controller after showing it in the view
-        private static List<MiningJob> JobCollection = new List<MiningJob>();
+        // We need this List to cache out parsed data, because the list can not be transferred back to the controller after showing it in the view
+        private static List<MiningJob> JobCollection = new List<MiningJob>();        
 
         public MoonMiningController(EveMoonminingToolContext context)
         {
@@ -26,44 +26,127 @@ namespace EveMoonminingTool.Controllers
         public IActionResult Index(string message = "Please put the Mining Data into the field below")
         {
             ViewData["Message"] = message;            
+            ViewData["LastWeek"] = DateTime.Now.AddDays(-7);
+            ViewData["Tomorrow"] = DateTime.Now.AddDays(1);
 
             return View();
         }
 
         // GET: /<controller>/
         [HttpGet]
-        public IActionResult Summary(float corpTribute = 20)
+        public IActionResult Summary(DateTime startDay, DateTime endDay, float corpTribute = 20)
         {
-            ViewData["corpTribute"] = corpTribute/100;
-            
-            // Use LINQ to get list of Corps.
-            IQueryable<string> corpQuery = from m in _context.MiningJob
-                                           orderby m.Corp
-                                           select m.Corp;
-            List<string> corps = corpQuery.Distinct().ToList();
+            /******************
+            //Create a list of summarys, one for each Corp
+            //Each corp summary contains a summary for each of it's member pilots
+            *******************/
+            List<CorpSummary> summaryList = new List<CorpSummary>();
 
+            //convert to TaxedJob Type for the view and group it by Corps
+            var tjobs = from m in _context.MiningJob
+                        where ((m.Day >= startDay) && (m.Day <= endDay))
+                        select new TaxedJob(m, corpTribute);
+            
+            var corpgroups = from job in tjobs
+                             group job by job.Corp;
+
+            foreach (var corpgroup in corpgroups)  //crate the corp summarys           
+            {
+                string corp = corpgroup.Key;               
+
+                //Create a list of summarys, one for each pilot of this corp
+                List<PilotSummary> pilotSummaryList = new List<PilotSummary>();
+
+                var jobsByPilot = from m in corpgroup                                  
+                                  group m by m.Pilot;
+
+                foreach (var pilotJobs in jobsByPilot) //create the pilot summarys
+                {
+                    string pilot = pilotJobs.Key;
+
+                    //create summary and add it to the list
+                    PilotSummary psummary = new PilotSummary(pilot, pilotJobs.ToList());
+                    psummary.TValue = pilotJobs.Sum(j => j.TValue);
+                    psummary.Volume = pilotJobs.Sum(j => j.Volumen);
+                    pilotSummaryList.Add(psummary);
+                }                
+
+                //calculate value and volume and create corp joblist                
+                List<TaxedJob> corpJoblist = new List<TaxedJob>();                
+
+                var jobsByOre = from m in corpgroup
+                                group m by m.OreType;
+
+                foreach (var oregroup in jobsByOre)
+                {
+                    string ore = oregroup.Key;
+                    //TaxedJob orejob = new TaxedJob();
+                    TaxedJob orejob = new TaxedJob() {
+                                     Day = oregroup.First().Day,
+                                     Pilot = corp,
+                                     OreType = ore,
+                                     TAmount = oregroup.Sum(x => x.TAmount),
+                                     TValue = oregroup.Sum(x => x.TValue),
+                                     Volumen = oregroup.Sum(x => x.Volumen),
+                                     Amount = oregroup.Sum(x => x.Amount),
+                                     EstimatedValue = oregroup.Sum(x => x.EstimatedValue),
+                                 };
+                    corpJoblist.Add(orejob);
+                }
+
+                //create summary and add it to the list
+                CorpSummary summary = new CorpSummary(corp, corpJoblist, pilotSummaryList);
+                summary.TValue = corpJoblist.Sum(j => j.TValue);
+                summary.Volume = corpJoblist.Sum(j => j.Volumen);
+
+                summaryList.Add(summary);
+            }
+
+            SummaryViewModel summaryView = new SummaryViewModel(startDay, endDay, corpTribute, summaryList);
+
+            return View(summaryView);
+        }
+
+        // GET: /<controller>/
+        //obsolete
+        [HttpGet]
+        public IActionResult SummaryOld(float corpTribute = 20)
+        {
+            ViewData["Tax"] = corpTribute;
             //Create a list of summarys, one for each Corp
             List<CorpSummary> summaryList = new List<CorpSummary>();
 
-            foreach (string c in corps)
+            // Use LINQ to get list of Corps. (old version)
+            //iqueryable<string> corpquery = from m in _context.miningjob
+            //                               orderby m.corp
+            //                               select m.corp;
+            //list<string> corps = corpquery.distinct().tolist();
+
+            //group the jobs by corps
+            var groupresult = from job in _context.MiningJob
+                              group job by job.Corp;            
+
+            foreach(var corpgroup in groupresult)
+            //foreach (string c in corps)
             {
+                string c = corpgroup.Key;
                 //get a List of all Pilot summarys for that Corp
-                List<PilotSummary> pilotSummarys = getPilotSummarys(c);               
+                List<PilotSummary> pilotSummarys = getPilotSummarys(c, corpTribute);              
 
                 //calculate value and volume and create corp joblist
                 int oreValueSum = 0;
                 float oreVolumeSum = 0;
-                List<MiningJob> joblist = new List<MiningJob>();
+                List<TaxedJob> joblist = new List<TaxedJob>();
                 foreach (PilotSummary pj in pilotSummarys)
                 {                    
-                    oreValueSum = oreValueSum + pj.Value;
+                    oreValueSum = oreValueSum + pj.TValue;
                     oreVolumeSum = oreVolumeSum + pj.Volume;
-                    joblist.AddRange(pj.Jobs);
+                    joblist.AddRange(pj.TJobs);
                 }
 
                 //create summary and add it to the list
                 CorpSummary summary = new CorpSummary(c, joblist, pilotSummarys);
-                summary.Value = oreValueSum;
+                summary.TValue = oreValueSum;
                 summary.Volume = oreVolumeSum;
 
                 summaryList.Add(summary);
@@ -73,55 +156,63 @@ namespace EveMoonminingTool.Controllers
         }
 
         // Helper to create the summary for each pilot of a certain corp
-        private List<PilotSummary> getPilotSummarys(string corp)
+        private List<PilotSummary> getPilotSummarys(string corp, float corpTribute = 20)
         {
-            //filter for corp's jobs
-            var jobsSubSet = from m in _context.MiningJob
-                             select m;
-
-            jobsSubSet = jobsSubSet.Where(x => x.Corp == corp);
-
-            // Use LINQ to get list of pilots.
-            IQueryable<string> pilotQuery = from m in jobsSubSet
-                                            orderby m.Pilot
-                                            select m.Pilot;
-            List<string> pilots = pilotQuery.Distinct().ToList();
-
             //Create a list of summarys, one for each pilot
-            List<PilotSummary> summaryList = new List<PilotSummary>();
+            List<PilotSummary> pilotSummaryList = new List<PilotSummary>();
+           
 
-            foreach (string p in pilots)
+            /* 
+            //jobsSubSet = jobsSubSet.Where(x => x.Corp == corp);
+            /// Use LINQ to get list of pilots.
+            //IQueryable<string> pilotQuery = from m in jobsSubSet
+            //                                orderby m.Pilot
+            //                                select m.Pilot;
+            //List<string> pilots = pilotQuery.Distinct().ToList();
+            */
+            
+            //filter for corp's jobs
+            var jobsByPilot = from m in _context.MiningJob
+                              where m.Corp == corp
+                              group m by m.Pilot;
+
+            foreach (var pilotJobs in jobsByPilot)
             {
+                string pilot = pilotJobs.Key;
                 //filter for pilot's jobs
-                var jobs = from m in jobsSubSet
-                           select m;
+                var jobs = from m in pilotJobs
+                           //where m.Pilot == pilot
+                           select new TaxedJob(m, corpTribute);
 
-                jobs = jobsSubSet.Where(x => x.Pilot == p);
-                List<MiningJob> joblist = jobs.ToList();
+                //jobs = jobsSubSet.Where(x => x.Pilot == p);
+                //List<MiningJob> joblist = jobs.ToList();
 
-                //calculate value and volume
-                int oreValueSum = 0;
-                float oreVolumeSum = 0;
-                foreach (MiningJob j in joblist)
-                {
-                    oreValueSum = oreValueSum + j.EstimatedValue;
-                    oreVolumeSum = oreVolumeSum + j.Volumen;
-                }
+                //apply tax and calculate value and volume
+                //List<TaxedJob> taxedJobList = new List<TaxedJob>();
+                //int oreValueSum = 0;
+                //float oreVolumeSum = 0;
+                //foreach (TaxedJob j in jobs)
+                //{
+                //    //TaxedJob tj = new TaxedJob(j, corpTribute);
+                //    oreValueSum = oreValueSum + j.TValue;
+                //    oreVolumeSum = oreVolumeSum + j.Volumen;
+                //    //taxedJobList.Add(j);
+                //}               
 
                 //create summary and add it to the list
-                PilotSummary summary = new PilotSummary(p, joblist);
-                summary.Value = oreValueSum;
-                summary.Volume = oreVolumeSum;
+                PilotSummary summary = new PilotSummary(pilot, jobs.ToList());
+                summary.TValue = jobs.Sum(j => j.TValue);
+                summary.Volume = jobs.Sum(j => j.Volumen);
 
-                summaryList.Add(summary);
+                pilotSummaryList.Add(summary);
             }
 
-            return summaryList;
+            return pilotSummaryList;
         }
 
         // GET: /<controller>/
         // Obsolete
-        public IActionResult CorpSummary()
+        public IActionResult CorpSummary(float corpTribute = 20)
         {
             // Use LINQ to get list of Corps.
             IQueryable<string> corpQuery = from m in _context.MiningJob
@@ -141,18 +232,21 @@ namespace EveMoonminingTool.Controllers
                 jobs = jobs.Where(x => x.Corp == c);
                 List<MiningJob> joblist = jobs.ToList();
 
-                //calculate value and volume
+                //create taxed joblist and calculate value and volume
                 int oreValueSum = 0;
                 float oreVolumeSum = 0;
+                List<TaxedJob> tjobs = new List<TaxedJob>();
                 foreach (MiningJob j in joblist)
                 {
-                    oreValueSum = oreValueSum + j.EstimatedValue;
-                    oreVolumeSum = oreVolumeSum + j.Volumen;
+                    TaxedJob tj = new TaxedJob(j, corpTribute);
+                    oreValueSum = oreValueSum + tj.TValue;
+                    oreVolumeSum = oreVolumeSum + tj.Volumen;
+                    tjobs.Add(tj);
                 }
 
                 //create summary and add it to the list
-                CorpSummary summary = new CorpSummary(c, joblist, null);
-                summary.Value = oreValueSum;
+                CorpSummary summary = new CorpSummary(c, tjobs, null);
+                summary.TValue = oreValueSum;
                 summary.Volume = oreVolumeSum;
 
                 summaryList.Add(summary);
@@ -163,7 +257,7 @@ namespace EveMoonminingTool.Controllers
 
         // GET: /<controller>/
         // Obsolete
-        public IActionResult PilotSummary()
+        public IActionResult PilotSummary(float corpTribute = 20)
         {
             // Use LINQ to get list of pilots.
             IQueryable<string> pilotQuery = from m in _context.MiningJob
@@ -183,18 +277,21 @@ namespace EveMoonminingTool.Controllers
                 jobs = jobs.Where(x => x.Pilot == p);
                 List<MiningJob> joblist = jobs.ToList();
 
-                //calculate value and volume
+                //create taxed joblist and calculate value and volume
                 int oreValueSum = 0;
                 float oreVolumeSum = 0;
+                List<TaxedJob> taxedJobList = new List<TaxedJob>();
                 foreach (MiningJob j in joblist)
                 {
-                    oreValueSum = oreValueSum + j.EstimatedValue;
-                    oreVolumeSum = oreVolumeSum + j.Volumen;
+                    TaxedJob tj = new TaxedJob(j, corpTribute);
+                    oreValueSum = oreValueSum + tj.TValue;
+                    oreVolumeSum = oreVolumeSum + tj.Volumen;
+                    taxedJobList.Add(tj);
                 }
 
                 //create summary and add it to the list
-                PilotSummary summary = new PilotSummary(p, joblist);
-                summary.Value = oreValueSum;
+                PilotSummary summary = new PilotSummary(p, taxedJobList);
+                summary.TValue = oreValueSum;
                 summary.Volume = oreVolumeSum;
 
                 summaryList.Add(summary);
@@ -220,6 +317,7 @@ namespace EveMoonminingTool.Controllers
             if (data == null | data == "")
             {
                 JobCollection = new List<MiningJob>();
+                ViewData["Message"] = "No Data processed. Input was empty or NULL (how is that even possible?)";
                 return View(JobCollection);
             }
             
@@ -277,6 +375,8 @@ namespace EveMoonminingTool.Controllers
                 }
             }
 
+
+
             ViewData["ListLenght"] = JobCollection.Count();            
 
             return View(JobCollection);
@@ -291,8 +391,34 @@ namespace EveMoonminingTool.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.AddRange(JobCollection);
+
+                //Check for duplicates and add only if there is no entry for that Day, Pilot and Ore Type
+                foreach (MiningJob mJob in JobCollection)
+                {
+                    MiningJob dBjob = _context.MiningJob
+                                      .SingleOrDefault(m => (m.Day == mJob.Day)
+                                                      && (m.Corp == mJob.Corp)
+                                                      && (m.Pilot == mJob.Pilot)
+                                                      && (m.OreType == mJob.OreType)
+                                                       );
+                    if (dBjob == default(MiningJob))
+                    {
+                        _context.Add(mJob);
+                    }
+                    else
+                    {
+                        dBjob.Amount = mJob.Amount;
+                        dBjob.Volumen = mJob.Volumen;
+                        dBjob.EstimatedValue = mJob.EstimatedValue;
+                        _context.Update(dBjob);
+                    }
+
+                }
+
+                //_context.AddRange(JobCollection);
                 await _context.SaveChangesAsync();
+
+                //Clear the joblist after the work is done
                 JobCollection = new List<MiningJob>();
                 return RedirectToAction("Summary");
             }

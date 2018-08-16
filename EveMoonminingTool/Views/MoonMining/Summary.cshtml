@@ -1,14 +1,24 @@
-﻿@model List<EveMoonminingTool.Models.CorpSummary>
+﻿@model EveMoonminingTool.Models.SummaryViewModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Index";   
 }
 
 <h1>Mining Summary</h1>
 
+<form asp-action="Summary" method="get">
+    <p>
+        From:<input asp-for="StartDay"> to: <input asp-for="EndDay">
+    </p>
+    <p>
+        Corp Tribute:<input type="text" value="@Model.Tax" name="corpTribute">%
+    </p>
+    <input type="submit" value="OK" />
+</form>
 
 
-@foreach (var summary in Model)
+
+@foreach (var summary in Model.CropSummarys)
 {
     <h2>@summary.Corp</h2>
     <button class="collapsible">Show mined ores</button>
@@ -17,112 +27,134 @@
             <thead>
                 <tr>
                     <th>
-                        @Html.DisplayNameFor(model => model[0].Jobs[0].Day)
+                        @Html.DisplayNameFor(model => model.CropSummarys[0].TJobs[0].Day)
+                    </th>
+                    @*<th>
+                        @Html.DisplayNameFor(model => model.CropSummarys[0].TJobs[0].Corp)
+                    </th>*@
+                    @*<th>
+                        @Html.DisplayNameFor(model => model.CropSummarys[0].TJobs[0].Pilot)
+                    </th>*@
+                    <th>
+                        @Html.DisplayNameFor(model => model.CropSummarys[0].TJobs[0].OreType)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model[0].Jobs[0].Corp)
+                        @Html.DisplayNameFor(model => model.CropSummarys[0].TJobs[0].TAmount)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model[0].Jobs[0].Pilot)
+                        @Html.DisplayNameFor(model => model.CropSummarys[0].TJobs[0].TValue)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model[0].Jobs[0].OreType)
+                        @Html.DisplayNameFor(model => model.CropSummarys[0].TJobs[0].Volumen)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model[0].Jobs[0].Amount)
+                        @Html.DisplayNameFor(model => model.CropSummarys[0].TJobs[0].Amount)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model[0].Jobs[0].Volumen)
+                        @Html.DisplayNameFor(model => model.CropSummarys[0].TJobs[0].EstimatedValue)
                     </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model[0].Jobs[0].EstimatedValue)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model[0].Jobs[0].OreID)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model[0].Jobs[0].SystemID)
-                    </th>
+                    @*<th>
+            @Html.DisplayNameFor(model => model.CropSummarys[0].TJobs[0].OreID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CropSummarys[0].TJobs[0].SystemID)
+        </th>*@
                     <th></th>
                 </tr>
             </thead>
+            
+            @foreach (var item in summary.TJobs)
+            {
             <tbody>
-                @foreach (var item in summary.Jobs)
-                {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Day)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Corp)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Pilot)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.OreType)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Amount)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Volumen) m³
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.EstimatedValue) ISK
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.OreID)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.SystemID)
-                        </td>
-                    </tr>
-                }
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Day)
+                    </td>
+                    @*<td>
+                        @Html.DisplayFor(modelItem => item.Corp)
+                    </td>*@
+                    @*<td>
+                        @Html.DisplayFor(modelItem => item.Pilot)
+                    </td>*@
+                    <td>
+                        @Html.DisplayFor(modelItem => item.OreType)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TAmount)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TValue) ISK
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Volumen) m³
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Amount)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EstimatedValue) ISK
+                    </td>
+                    @*<td>
+                        @Html.DisplayFor(modelItem => item.OreID)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SystemID)
+                    </td>*@
+                </tr>
             </tbody>
+            }
+
+
         </table>
     </div>
-    <div>minered a total of @Html.DisplayFor(modelItem => summary.Volume) m³ for @Html.DisplayFor(modelItem => summary.Value) ISK</div>
+    <div>A total of @Html.DisplayFor(modelItem => summary.Volume) m³ for @Html.DisplayFor(modelItem => summary.TValue) ISK (@Model.Tax % tax) was minered</div>
 
     @foreach (var pilot in summary.PilotSummarys)
     {
-        <button class="collapsible">@pilot.Pilot : @Html.DisplayFor(modelItem => pilot.Value) ISK (@Html.DisplayFor(modelItem => pilot.Volume) m³)</button>
+    <button class="collapsible">@pilot.Pilot : @Html.DisplayFor(modelItem => pilot.TValue) ISK (@Model.Tax % tax on @Html.DisplayFor(modelItem => pilot.Volume) m³)</button>
         <div class="content">
             <table class="table">
                 <thead>
                     <tr>
                         <th>
-                            @Html.DisplayNameFor(model => model[0].PilotSummarys[0].Jobs[0].Day)
+                            @Html.DisplayNameFor(model => model.CropSummarys[0].PilotSummarys[0].TJobs[0].Day)
                         </th>
                         @*<th>
-                            @Html.DisplayNameFor(model => model[0].PilotSummarys[0].Jobs[0].Corp)
+                            @Html.DisplayNameFor(model => model.CropSummarys[0].PilotSummarys[0].TJobs[0].Corp)
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model[0].PilotSummarys[0].Jobs[0].Pilot)
+                            @Html.DisplayNameFor(model => model.CropSummarys[0].PilotSummarys[0].TJobs[0].Pilot)
                         </th>*@
                         <th>
-                            @Html.DisplayNameFor(model => model[0].PilotSummarys[0].Jobs[0].OreType)
+                            @Html.DisplayNameFor(model => model.CropSummarys[0].PilotSummarys[0].TJobs[0].OreType)
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model[0].PilotSummarys[0].Jobs[0].Amount)
+                            @Html.DisplayNameFor(model => model.CropSummarys[0].PilotSummarys[0].TJobs[0].TAmount)
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model[0].PilotSummarys[0].Jobs[0].Volumen)
+                            @Html.DisplayNameFor(model => model.CropSummarys[0].PilotSummarys[0].TJobs[0].TValue)
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model[0].PilotSummarys[0].Jobs[0].EstimatedValue)
+                            @Html.DisplayNameFor(model => model.CropSummarys[0].PilotSummarys[0].TJobs[0].Volumen)
                         </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.CropSummarys[0].PilotSummarys[0].TJobs[0].Amount)
+                        </th>                        
+                        <th>
+                            @Html.DisplayNameFor(model => model.CropSummarys[0].PilotSummarys[0].TJobs[0].EstimatedValue)
+                        </th>
+                        
                         @*<th>
-                            @Html.DisplayNameFor(model => model[0].PilotSummarys[0].Jobs[0].OreID)
+                            @Html.DisplayNameFor(model => model.CropSummarys[0].PilotSummarys[0].TJobs[0].OreID)
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model[0].PilotSummarys[0].Jobs[0].SystemID)
+                            @Html.DisplayNameFor(model => model.CropSummarys[0].PilotSummarys[0].TJobs[0].SystemID)
                         </th>*@
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in pilot.Jobs)
+                    @foreach (var item in pilot.TJobs)
                     {
                         <tr>
                             <td>
@@ -138,14 +170,21 @@
                                 @Html.DisplayFor(modelItem => item.OreType)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.Amount)
+                               @Html.DisplayFor(modelItem => item.TAmount) 
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.TValue) ISK
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.Volumen) m³
                             </td>
                             <td>
+                               @Html.DisplayFor(modelItem => item.Amount) 
+                            </td>                            
+                            <td>
                                 @Html.DisplayFor(modelItem => item.EstimatedValue) ISK
                             </td>
+                            
                             @*<td>
                                 @Html.DisplayFor(modelItem => item.OreID)
                             </td>

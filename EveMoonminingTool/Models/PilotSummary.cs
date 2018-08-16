@@ -10,18 +10,20 @@ namespace EveMoonminingTool.Models
     public class PilotSummary
     {
         public string Pilot { get; set; }
-        public List<MiningJob> Jobs;
+
+        public List<TaxedJob> TJobs;
 
         [DisplayFormat(DataFormatString = "{0:N0}")]
-        public int Value { get; set; } = 0;
+        public int TValue { get; set; } = 0;
 
         [DisplayFormat(DataFormatString = "{0:N0}")]
         public float Volume { get; set; } = 0;
 
-        public PilotSummary(string pilot, List<MiningJob> jobs)
+        public PilotSummary(string pilot, List<TaxedJob> jobs)
         {
             this.Pilot = pilot;
-            this.Jobs = jobs;
-        }
+            this.TJobs = jobs;
+        }     
+
     }
 }
