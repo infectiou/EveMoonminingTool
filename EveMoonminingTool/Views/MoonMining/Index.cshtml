@@ -16,11 +16,6 @@
     </p>
 </form>
 
-<h4>Or go to Database</h4>
-
-<div>    
-    <form asp-action="Summary" method="get">
-        <div>From: <input name="StartDay" id="StartDay" type="date" value="@ViewData["LastWeek"]" /> To: <input name="EndDay" id="EndDay" type="date" value="2018.10.10" /></div>
-        <input type="submit" value="Show" />      
-    </form>    
+<div>
+    <a asp-action="Summary">Or go to Database</a>
 </div>

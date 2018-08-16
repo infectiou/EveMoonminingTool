@@ -12,8 +12,8 @@ namespace EveMoonminingTool.Models
         public int ID { get; set; }
 
         [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:yyyy.MM.dd}", ApplyFormatInEditMode = true)]
-        [Display(Name = "Day (yyyy.MM.dd)")]       
+        [DisplayFormat(DataFormatString = "{0:yyyy-mm-dd}", ApplyFormatInEditMode = true)]
+        [Display(Name = "Day (yyyy-mm-dd)")]       
         [Required]
         public DateTime Day { get; set; }
 
@@ -43,7 +43,7 @@ namespace EveMoonminingTool.Models
 
         }
 
-        public MiningJob (String[] werte)
+            public MiningJob (String[] werte)
         {
             
             // This constructor is for generating a Mining job Objects from the Strings that are parsed from the initialy posted text
@@ -64,6 +64,5 @@ namespace EveMoonminingTool.Models
             this.OreID = int.Parse(werte[7]);
             this.SystemID = int.Parse(werte[8]);
         }
-        
     }
 }
