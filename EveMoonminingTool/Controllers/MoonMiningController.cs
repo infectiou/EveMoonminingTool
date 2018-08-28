@@ -234,13 +234,7 @@ namespace EveMoonminingTool.Controllers
             // Split each entry into it's single data points
             // There are supposed to be 9 Data Points per entry, seperated by tabs:
             string[][] entrys = new string[lines.Length][];
-
-            //for (int i = 0; i < lines.Length; i++)
-            //{                
-            //    entrys[i] = lines[i].Split('\t');
-            //}
-
-
+            
             // Strip each line of the HTML and try to convert the entrys into a Mining Job
             JobCollection = new List<MiningJob>();
 
